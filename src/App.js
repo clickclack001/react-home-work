@@ -21,18 +21,24 @@ function reducer(state, action) {
     let newState = state.filter((task) => task.id !== action.payload.id)
     return [...newState]
   }
+  if (action.type === 'CLEAR_TASK_LIST') {
+    return [action.payload]
+  }
+  if (action.type === 'SET_ALL_COMPLETED') {
+    let newState = state.map((task) => ({ ...task, completed: true }))
+    return [...newState]
+  }
 
   return state
 }
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, [
-    {
-      id: null,
-      text: '',
-      completed: false,
-    },
-  ])
+  const initState = {
+    id: null,
+    text: '',
+    completed: false,
+  }
+  const [state, dispatch] = useReducer(reducer, [initState])
 
   const addTask = (task) => {
     dispatch({
@@ -56,6 +62,20 @@ function App() {
       },
     })
   }
+
+  const clearTaskList = () => {
+    dispatch({
+      type: 'CLEAR_TASK_LIST',
+      payload: initState,
+    })
+  }
+
+  const setAllCompleted = () => {
+    dispatch({
+      type: 'SET_ALL_COMPLETED',
+    })
+  }
+
   return (
     <div className="App">
       <Paper className="wrapper">
@@ -86,8 +106,8 @@ function App() {
         </List>
         <Divider />
         <div className="check-buttons">
-          <Button>Отметить всё</Button>
-          <Button>Очистить</Button>
+          <Button onClick={() => setAllCompleted()}>Отметить всё</Button>
+          <Button onClick={() => clearTaskList()}>Очистить</Button>
         </div>
       </Paper>
     </div>
