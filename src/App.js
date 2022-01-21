@@ -17,6 +17,11 @@ function reducer(state, action) {
     )
     return [...newState]
   }
+  if (action.type === 'DELETE_TASK') {
+    let newState = state.filter((task) => task.id !== action.payload.id)
+    return [...newState]
+  }
+
   return state
 }
 
@@ -40,6 +45,15 @@ function App() {
     dispatch({
       type: 'SET_COMPLETED',
       taskId: id,
+    })
+  }
+
+  const deleteTask = (id) => {
+    dispatch({
+      type: 'DELETE_TASK',
+      payload: {
+        id,
+      },
     })
   }
   return (
@@ -66,6 +80,7 @@ function App() {
                 key={task.id}
                 id={task.id}
                 onSetCompleted={setCompleted}
+                onDelete={deleteTask}
               />
             ))}
         </List>
