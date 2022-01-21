@@ -1,7 +1,7 @@
 import { Paper, Divider, Button, List, Tabs, Tab } from '@mui/material'
 import { AddField } from './components/AddField'
 import { Item } from './components/Item'
-import { useReducer } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 
 function reducer(state, action) {
   if (action.type === 'ADD_TASK') {
@@ -11,35 +11,56 @@ function reducer(state, action) {
     return [...state, action.newTask]
   }
   if (action.type === 'SET_COMPLETED') {
-    let newState = state.map((task) =>
+    return state.map((task) =>
       task.id === action.taskId
         ? { ...task, completed: !task.completed }
         : task,
     )
-    return newState
   }
   if (action.type === 'DELETE_TASK') {
     let newState = state.filter((task) => task.id !== action.payload.id)
     return [...newState]
   }
   if (action.type === 'CLEAR_TASK_LIST') {
-    return [action.payload]
+    return []
   }
   if (action.type === 'SET_ALL_COMPLETED') {
     let newState = state.map((task) => ({ ...task, completed: true }))
     return [...newState]
+  }
+  if (action.type === 'TOGGLE_COMPLETED_ALL') {
+    const noCompleted = state.find((task) => !task.completed)
+    return state.map((task) => ({
+      ...task,
+      completed: Boolean(noCompleted),
+    }))
   }
 
   return state
 }
 
 function App() {
-  const initState = {
-    id: null,
-    text: '',
-    completed: false,
+  const [state, dispatch] = useReducer(reducer, [])
+  const [tab, setTab] = useState(0)
+  const [toggleText, setToggleText] = useState('')
+
+  // Может быть так не правильно делать и скорее всего есть вариант написать проще и короче,
+  // но чтото другого ничего не придумал :)
+  useEffect(() => {
+    if (state.find((task) => !task.completed)) {
+      setToggleText('Отметить все')
+    } else {
+      if (state.length) {
+        setToggleText('Снять отметку')
+      } else {
+        setToggleText('Отметить все')
+      }
+    }
+  }, [state])
+
+  const changeTab = (tab) => {
+    setTab(tab)
   }
-  const [state, dispatch] = useReducer(reducer, [initState])
 
   const addTask = (task) => {
     dispatch({
@@ -67,13 +88,12 @@ function App() {
   const clearTaskList = () => {
     dispatch({
       type: 'CLEAR_TASK_LIST',
-      payload: initState,
     })
   }
 
   const setAllCompleted = () => {
     dispatch({
-      type: 'SET_ALL_COMPLETED',
+      type: 'TOGGLE_COMPLETED_ALL',
     })
   }
 
@@ -85,16 +105,16 @@ function App() {
         </Paper>
         <AddField onAddTask={addTask} />
         <Divider />
-        <Tabs value={0}>
-          <Tab label="Все" />
-          <Tab label="Активные" />
-          <Tab label="Завершённые" />
+        <Tabs value={tab}>
+          <Tab label="Все" onClick={() => changeTab(0)} />
+          <Tab label="Активные" onClick={() => changeTab(1)} />
+          <Tab label="Завершённые" onClick={() => changeTab(2)} />
         </Tabs>
         <Divider />
         <List>
-          {state
-            .filter((task) => task.id !== null)
-            .map((task) => (
+          {/*В этом блоке тоже наверное можно было как-то по другому сделать, так как код поввторяется, кроме фильтра*/}
+          {tab === 0 &&
+            state.map((task) => (
               <Item
                 completed={task.completed}
                 text={task.text}
@@ -104,10 +124,36 @@ function App() {
                 onDelete={deleteTask}
               />
             ))}
+          {tab === 1 &&
+            state
+              .filter((task) => task.completed === false)
+              .map((task) => (
+                <Item
+                  completed={task.completed}
+                  text={task.text}
+                  key={task.id}
+                  id={task.id}
+                  onSetCompleted={setCompleted}
+                  onDelete={deleteTask}
+                />
+              ))}
+          {tab === 2 &&
+            state
+              .filter((task) => task.completed === true)
+              .map((task) => (
+                <Item
+                  completed={task.completed}
+                  text={task.text}
+                  key={task.id}
+                  id={task.id}
+                  onSetCompleted={setCompleted}
+                  onDelete={deleteTask}
+                />
+              ))}
         </List>
         <Divider />
         <div className="check-buttons">
-          <Button onClick={setAllCompleted}>Отметить всё</Button>
+          <Button onClick={setAllCompleted}>{toggleText}</Button>
           <Button onClick={clearTaskList}>Очистить</Button>
         </div>
       </Paper>
