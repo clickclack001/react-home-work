@@ -5,8 +5,9 @@ import { useReducer } from 'react'
 
 function reducer(state, action) {
   if (action.type === 'ADD_TASK') {
-    let maxId = state.reduce((prev, cur) => (prev.id > cur.id ? prev : cur))
-    action.newTask.id = maxId.id + 1
+    //let maxId = state.reduce((prev, cur) => (prev.id > cur.id ? prev : cur))
+    let maxId = state.length ? state[state.length - 1].id : 1
+    action.newTask.id = maxId + 1
     return [...state, action.newTask]
   }
   if (action.type === 'SET_COMPLETED') {
@@ -15,7 +16,7 @@ function reducer(state, action) {
         ? { ...task, completed: !task.completed }
         : task,
     )
-    return [...newState]
+    return newState
   }
   if (action.type === 'DELETE_TASK') {
     let newState = state.filter((task) => task.id !== action.payload.id)
@@ -106,8 +107,8 @@ function App() {
         </List>
         <Divider />
         <div className="check-buttons">
-          <Button onClick={() => setAllCompleted()}>Отметить всё</Button>
-          <Button onClick={() => clearTaskList()}>Очистить</Button>
+          <Button onClick={setAllCompleted}>Отметить всё</Button>
+          <Button onClick={clearTaskList}>Очистить</Button>
         </div>
       </Paper>
     </div>

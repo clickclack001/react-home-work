@@ -12,9 +12,11 @@ export const AddField = ({ onAddTask }) => {
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target
-    type === 'checkbox'
-      ? setNewTask({ ...newTask, [name]: checked })
-      : setNewTask({ ...newTask, [name]: value })
+    if (type === 'checkbox') {
+      setNewTask({ ...newTask, [name]: checked })
+    } else {
+      setNewTask({ ...newTask, [name]: value })
+    }
   }
 
   const handleClick = () => {
