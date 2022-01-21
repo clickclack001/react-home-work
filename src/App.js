@@ -58,10 +58,6 @@ function App() {
     }
   }, [state])
 
-  const changeTab = (tab) => {
-    setTab(tab)
-  }
-
   const addTask = (task) => {
     dispatch({
       type: 'ADD_TASK',
@@ -106,9 +102,9 @@ function App() {
         <AddField onAddTask={addTask} />
         <Divider />
         <Tabs value={tab}>
-          <Tab label="Все" onClick={() => changeTab(0)} />
-          <Tab label="Активные" onClick={() => changeTab(1)} />
-          <Tab label="Завершённые" onClick={() => changeTab(2)} />
+          <Tab label="Все" onClick={() => setTab(0)} />
+          <Tab label="Активные" onClick={() => setTab(1)} />
+          <Tab label="Завершённые" onClick={() => setTab(2)} />
         </Tabs>
         <Divider />
         <List>
